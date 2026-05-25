@@ -1,0 +1,17 @@
+---
+server_role:
+  - database
+  - nfs
+
+primary_interface: eth0
+
+database_bind_address: "{{ ansible_default_ipv4.address }}"
+
+nfs_exports:
+  - /mnt/shared
+
+shared_storage_vg: vg_shared
+
+shared_storage_lv: lv_shared
+
+shared_storage_mount: /mnt/shared

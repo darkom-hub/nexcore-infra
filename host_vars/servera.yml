@@ -1,0 +1,20 @@
+---
+server_role:
+  - web
+  - dns
+  - mail
+
+primary_interface: eth0
+
+dns_server_ip: "{{ ansible_default_ipv4.address }}"
+
+apache_server_admin: admin@nexcore.local
+
+wiki_hostname: wiki.nexcore.local
+
+wordpress_hostname: www.nexcore.local
+
+postfix_domain: nexcore.local
+
+postfix_relay_networks:
+  - 127.0.0.0/8
