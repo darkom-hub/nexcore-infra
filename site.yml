@@ -1,0 +1,34 @@
+---
+- name: Base system configuration
+  hosts: managed
+  become: true
+
+  roles:
+    - users
+    - security
+    - patching
+    - logging
+
+- name: Configure storage and NFS services
+  hosts: serverb
+  become: true
+
+  roles:
+    - storage
+    - automount
+
+- name: Configure database services
+  hosts: db
+  become: true
+
+  roles:
+    - database
+
+- name: Configure DNS, web and email services
+  hosts: servera
+  become: true
+
+  roles:
+    - dns
+    - web
+    - email
