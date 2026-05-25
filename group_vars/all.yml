@@ -1,0 +1,23 @@
+---
+project_domain: nexcore.local
+
+timezone: Europe/Zagreb
+
+common_packages:
+  - vim
+  - bash-completion
+  - wget
+  - tar
+  - firewalld
+
+managed_users:
+  - dev01
+  - dev02
+
+ssh_allowed_group: wheel
+
+web_root: /var/www
+
+nfs_mount_point: /mnt/nexcore_share
+
+dns_forwarder: 8.8.8.8

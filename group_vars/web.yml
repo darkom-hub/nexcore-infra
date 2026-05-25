@@ -1,0 +1,12 @@
+---
+apache_packages:
+  - httpd
+
+apache_service: httpd
+
+websites:
+  - name: www
+    template: index.html.j2
+
+  - name: wiki
+    template: wiki.html.j2

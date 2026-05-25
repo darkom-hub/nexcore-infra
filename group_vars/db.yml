@@ -1,0 +1,11 @@
+---
+mariadb_packages:
+  - mariadb-server
+
+mariadb_service: mariadb
+
+database_name: nexcoredb
+
+database_user: nexcore
+
+database_port: 3306
