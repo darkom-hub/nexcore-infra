@@ -1,0 +1,8 @@
+---
+ssh_password_authentication: "no"
+
+ssh_permit_root_login: "no"
+
+firewalld_enabled: true
+
+selinux_required_state: enforcing
