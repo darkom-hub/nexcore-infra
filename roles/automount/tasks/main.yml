@@ -1,0 +1,66 @@
+---
+- name: Ensure NFS packages are installed
+  ansible.builtin.package:
+    name: nfs-utils
+    state: present
+
+- name: Ensure NFS service is enabled and running
+  ansible.builtin.service:
+    name: nfs-server
+    enabled: true
+    state: started
+  when: inventory_hostname == "serverb"
+
+- name: Open NFS service in firewalld
+  ansible.posix.firewalld:
+    service: nfs
+    permanent: true
+    state: enabled
+    immediate: true
+  when: inventory_hostname == "serverb"
+
+- name: Configure NFS exports
+  ansible.builtin.copy:
+    dest: /etc/exports.d/nexcore.exports
+    content: "{{ nfs_export_path }} *(rw,sync,no_root_squash)\n"
+    owner: root
+    group: root
+    mode: '0644'
+  when: inventory_hostname == "serverb"
+  notify: Restart nfs-server
+
+- name: Ensure exportfs configuration is applied
+  ansible.builtin.command:
+    cmd: exportfs -ra
+  when: inventory_hostname == "serverb"
+
+- name: Ensure autofs package is installed
+  ansible.builtin.package:
+    name: autofs
+    state: present
+  when: inventory_hostname != "serverb"   
+
+- name: Configure autofs master map
+  ansible.builtin.lineinfile:
+    path: /etc/auto.master
+    line: "/- /etc/{{ autofs_map_name }}"
+    state: present
+  notify: Restart autofs
+  when: inventory_hostname != "serverb"  
+
+- name: Deploy autofs map
+  ansible.builtin.template:
+    src: auto.company_share.j2
+    dest: "/etc/{{ autofs_map_name }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart autofs
+  when: inventory_hostname != "serverb"  
+
+- name: Ensure autofs service is enabled and running
+  ansible.builtin.service:
+    name: autofs
+    enabled: true
+    state: started
+  when: inventory_hostname != "serverb"    

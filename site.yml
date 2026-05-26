@@ -16,7 +16,7 @@
     - role: logging
       tags: logging
 
-- name: Configure storage and NFS services
+- name: Configure storage services
   hosts: serverb
   become: true
 
@@ -24,6 +24,11 @@
     - role: storage
       tags: storage
 
+- name: Configure NFS and automount services
+  hosts: managed
+  become: true
+
+  roles:
     - role: automount
       tags: automount
 
