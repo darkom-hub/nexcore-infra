@@ -10,9 +10,27 @@ common_packages:
   - tar
   - firewalld
 
-managed_users:
-  - dev01
-  - dev02
+managed_accounts:
+  - username: ops01
+    groups:
+      - ops
+      - wheel
+    sudo: true
+
+  - username: dev01
+    groups:
+      - dev
+    sudo: false
+
+  - username: dev02
+    groups:
+      - dev
+    sudo: false
+
+  - username: mkt01
+    groups:
+      - marketing
+    sudo: false
 
 ssh_allowed_group: wheel
 

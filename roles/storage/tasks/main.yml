@@ -1,0 +1,71 @@
+---
+- name: Ensure LVM packages are installed
+  ansible.builtin.package:
+    name: lvm2
+    state: present
+
+- name: Check if physical volume exists
+  ansible.builtin.command:
+    cmd: "pvs {{ storage_disk }}"
+  register: pv_check
+  changed_when: false
+  failed_when: false
+
+- name: Create physical volume
+  ansible.builtin.command:
+    cmd: "pvcreate {{ storage_disk }}"
+  when: pv_check.rc != 0
+   
+- name: Create volume group
+  ansible.builtin.command:
+    cmd: "vgcreate {{ volume_group_name }} {{ storage_disk }}"
+  args:
+    creates: "/dev/{{ volume_group_name }}"
+
+- name: Create logical volume
+  ansible.builtin.command:
+    cmd: "lvcreate -n {{ logical_volume_name }} -l {{ logical_volume_size }} {{ volume_group_name }}"
+  args:
+    creates: "/dev/{{ volume_group_name }}/{{ logical_volume_name }}"
+
+- name: Check if filesystem already exists
+  ansible.builtin.command:
+    cmd: "blkid /dev/{{ volume_group_name }}/{{ logical_volume_name }}"
+  register: filesystem_check
+  changed_when: false
+  failed_when: false
+
+- name: Create XFS filesystem
+  ansible.builtin.command:
+    cmd: "mkfs.xfs /dev/{{ volume_group_name }}/{{ logical_volume_name }}"
+  when: filesystem_check.rc != 0
+
+- name: Ensure shared mount point exists
+  ansible.builtin.file:
+    path: "{{ shared_mount_point }}"
+    state: directory
+    mode: '0775'
+
+- name: Mount shared filesystem
+  ansible.posix.mount:
+    path: "{{ shared_mount_point }}"
+    src: "/dev/{{ volume_group_name }}/{{ logical_volume_name }}"
+    fstype: "{{ shared_filesystem_type }}"
+    state: mounted
+
+- name: Ensure shared users directory exists
+  ansible.builtin.file:
+    path: "{{ shared_mount_point }}/users"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure per-user share directories exist
+  ansible.builtin.file:
+    path: "{{ shared_mount_point }}/users/{{ item.username }}"
+    state: directory
+    owner: "{{ item.username }}"
+    group: "{{ item.groups[0] }}"
+    mode: '0755'
+  loop: "{{ managed_accounts }}"

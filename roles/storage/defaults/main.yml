@@ -1,0 +1,12 @@
+---
+storage_disk: /dev/vdb
+
+volume_group_name: vg_shared
+
+logical_volume_name: lv_shared
+
+logical_volume_size: 100%FREE
+
+shared_filesystem_type: xfs
+
+shared_mount_point: /mnt/shared
