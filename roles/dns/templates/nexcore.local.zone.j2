@@ -1,0 +1,20 @@
+$TTL 86400
+@   IN  SOA servera.nexcore.local. admin.nexcore.local. (
+        2026052601
+        3600
+        1800
+        604800
+        86400
+)
+
+@           IN  NS      servera.nexcore.local.
+
+servera     IN  A       {{ hostvars['servera']['ansible_default_ipv4']['address'] }}
+serverb     IN  A       {{ hostvars['serverb']['ansible_default_ipv4']['address'] }}
+
+wiki        IN  A       {{ hostvars['servera']['ansible_default_ipv4']['address'] }}
+www         IN  A       {{ hostvars['servera']['ansible_default_ipv4']['address'] }}
+
+mail        IN  A       {{ hostvars['servera']['ansible_default_ipv4']['address'] }}
+
+@           IN  MX 10   mail.nexcore.local.

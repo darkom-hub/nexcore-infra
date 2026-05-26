@@ -1,0 +1,12 @@
+---
+dns_packages:
+  - bind
+  - bind-utils
+
+dns_service: named
+
+dns_zone_name: nexcore.local
+
+dns_zone_file: nexcore.local.zone
+
+dns_listen_port: 53

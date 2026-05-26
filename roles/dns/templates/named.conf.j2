@@ -1,0 +1,23 @@
+options {
+    listen-on port {{ dns_listen_port }} { any; };
+    listen-on-v6 port {{ dns_listen_port }} { ::1; };
+
+    directory       "/var/named";
+
+    allow-query     { any; };
+
+    recursion yes;
+
+    forwarders {
+        {{ dns_forwarder }};
+    };
+
+    dnssec-validation no;
+
+    managed-keys-directory "/var/named/dynamic";
+};
+
+zone "{{ dns_zone_name }}" IN {
+    type master;
+    file "/var/named/{{ dns_zone_file }}";
+};

@@ -1,0 +1,56 @@
+---
+- name: Ensure DNS packages are installed
+  ansible.builtin.package:
+    name: "{{ dns_packages }}"
+    state: present
+
+- name: Ensure named service is enabled and running
+  ansible.builtin.service:
+    name: "{{ dns_service }}"
+    enabled: true
+    state: started
+
+- name: Open DNS service in firewalld
+  ansible.posix.firewalld:
+    service: dns
+    permanent: true
+    state: enabled
+    immediate: true
+
+- name: Deploy named.conf
+  ansible.builtin.template:
+    src: named.conf.j2
+    dest: /etc/named.conf
+    owner: root
+    group: named
+    mode: '0640'
+  notify: Restart named
+
+- name: Validate named configuration
+  ansible.builtin.command:
+    cmd: named-checkconf
+  changed_when: false
+
+- name: Deploy DNS zone file
+  ansible.builtin.template:
+    src: nexcore.local.zone.j2
+    dest: "/var/named/{{ dns_zone_file }}"
+    owner: root
+    group: named
+    mode: '0640'
+  notify: Restart named
+
+- name: Validate DNS zone file
+  ansible.builtin.command:
+    cmd: "named-checkzone {{ dns_zone_name }} /var/named/{{ dns_zone_file }}"
+  changed_when: false
+
+- name: Ensure named zone file SELinux context
+  ansible.builtin.command:
+    cmd: "restorecon -Rv /var/named"
+  changed_when: false
+
+- name: Ensure DNS service is enabled and running after configuration
+  ansible.builtin.service:
+    name: "{{ dns_service }}"
+    state: started
