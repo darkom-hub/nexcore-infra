@@ -1,0 +1,16 @@
+---
+mariadb_packages:
+  - mariadb-server
+  - python3-PyMySQL
+
+mariadb_service: mariadb
+
+mariadb_bind_address: 0.0.0.0
+
+wordpress_database:
+  name: wordpress
+
+mediawiki_database:
+  name: mediawiki
+
+database_admin_user: root
