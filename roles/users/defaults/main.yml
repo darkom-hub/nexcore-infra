@@ -1,0 +1,27 @@
+---
+user_groups:
+  - ops
+  - dev
+  - marketing
+
+managed_accounts:
+  - username: ops01
+    groups:
+      - ops
+      - wheel
+    sudo: true
+
+  - username: dev01
+    groups:
+      - dev
+    sudo: false
+
+  - username: dev02
+    groups:
+      - dev
+    sudo: false
+
+  - username: mkt01
+    groups:
+      - marketing
+    sudo: false

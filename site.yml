@@ -4,31 +4,47 @@
   become: true
 
   roles:
-    - users
-    - security
-    - patching
-    - logging
+    - role: users
+      tags: users
+
+    - role: security
+      tags: security
+
+    - role: patching
+      tags: patching
+
+    - role: logging
+      tags: logging
 
 - name: Configure storage and NFS services
   hosts: serverb
   become: true
 
   roles:
-    - storage
-    - automount
+    - role: storage
+      tags: storage
+
+    - role: automount
+      tags: automount
 
 - name: Configure database services
   hosts: db
   become: true
 
   roles:
-    - database
+    - role: database
+      tags: database
 
 - name: Configure DNS, web and email services
   hosts: servera
   become: true
 
   roles:
-    - dns
-    - web
-    - email
+    - role: dns
+      tags: dns
+
+    - role: web
+      tags: web
+
+    - role: email
+      tags: email
