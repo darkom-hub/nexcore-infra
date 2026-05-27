@@ -20,3 +20,11 @@ wordpress_site:
 mediawiki_site:
   server_name: wiki.nexcore.local
   document_root: /var/www/wiki.nexcore.local
+
+wordpress_download_url: https://wordpress.org/latest.tar.gz
+
+mediawiki_download_url: https://releases.wikimedia.org/mediawiki/1.41/mediawiki-1.41.1.tar.gz
+
+wordpress_archive: /tmp/wordpress.tar.gz
+
+mediawiki_archive: /tmp/mediawiki.tar.gz

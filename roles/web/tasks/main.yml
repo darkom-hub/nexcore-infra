@@ -99,3 +99,62 @@
   ansible.builtin.service:
     name: "{{ apache_service }}"
     state: started
+
+- name: Download WordPress archive
+  ansible.builtin.get_url:
+    url: "{{ wordpress_download_url }}"
+    dest: "{{ wordpress_archive }}"
+    mode: '0644'
+
+- name: Download MediaWiki archive
+  ansible.builtin.get_url:
+    url: "{{ mediawiki_download_url }}"
+    dest: "{{ mediawiki_archive }}"
+    mode: '0644'
+
+- name: Extract WordPress
+  ansible.builtin.unarchive:
+    src: "{{ wordpress_archive }}"
+    dest: /tmp
+    remote_src: true
+    creates: /tmp/wordpress
+
+- name: Extract MediaWiki
+  ansible.builtin.unarchive:
+    src: "{{ mediawiki_archive }}"
+    dest: /tmp
+    remote_src: true
+    creates: /tmp/mediawiki-1.41.1
+
+- name: Copy WordPress application files
+  ansible.builtin.shell:
+    cmd: "cp -r /tmp/wordpress/* {{ wordpress_site.document_root }}/"
+  args:
+    creates: "{{ wordpress_site.document_root }}/wp-admin"
+
+- name: Set ownership on WordPress files
+  ansible.builtin.file:
+    path: "{{ wordpress_site.document_root }}"
+    owner: apache
+    group: apache
+    recurse: true
+  notify: Restart httpd
+
+- name: Copy MediaWiki application files
+  ansible.builtin.shell:
+    cmd: "cp -r /tmp/mediawiki-1.41.1/* {{ mediawiki_site.document_root }}/"
+  args:
+    creates: "{{ mediawiki_site.document_root }}/includes"
+
+- name: Set ownership on MediaWiki files
+  ansible.builtin.file:
+    path: "{{ mediawiki_site.document_root }}"
+    owner: apache
+    group: apache
+    recurse: true
+  notify: Restart httpd
+
+- name: Restore SELinux contexts on application files
+  ansible.builtin.command:
+    cmd: "restorecon -Rv {{ web_root }}"
+  changed_when: false

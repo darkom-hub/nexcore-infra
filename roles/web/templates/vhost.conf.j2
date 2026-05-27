@@ -3,6 +3,8 @@
 
     DocumentRoot {{ document_root }}
 
+    DirectoryIndex index.php index.html
+
     <Directory {{ document_root }}>
         AllowOverride All
         Require all granted
