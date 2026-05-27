@@ -1,0 +1,22 @@
+---
+apache_packages:
+  - httpd
+  - php
+  - php-mysqlnd
+  - php-gd
+  - php-xml
+  - php-mbstring
+  - php-json
+  - policycoreutils-python-utils
+
+apache_service: httpd
+
+web_root: /var/www
+
+wordpress_site:
+  server_name: www.nexcore.local
+  document_root: /var/www/www.nexcore.local
+
+mediawiki_site:
+  server_name: wiki.nexcore.local
+  document_root: /var/www/wiki.nexcore.local

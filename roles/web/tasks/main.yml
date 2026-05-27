@@ -1,0 +1,101 @@
+---
+- name: Ensure Apache and PHP packages are installed
+  ansible.builtin.package:
+    name: "{{ apache_packages }}"
+    state: present
+
+- name: Ensure Apache service is enabled and running
+  ansible.builtin.service:
+    name: "{{ apache_service }}"
+    enabled: true
+    state: started
+
+- name: Open HTTP service in firewalld
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    state: enabled
+    immediate: true
+
+- name: Ensure WordPress document root exists
+  ansible.builtin.file:
+    path: "{{ wordpress_site.document_root }}"
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: Ensure MediaWiki document root exists
+  ansible.builtin.file:
+    path: "{{ mediawiki_site.document_root }}"
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: Deploy WordPress test page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ wordpress_site.document_root }}/index.html"
+    owner: apache
+    group: apache
+    mode: '0644'
+  vars:
+    site_title: "www.nexcore.local"
+  notify: Restart httpd
+
+- name: Deploy MediaWiki test page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ mediawiki_site.document_root }}/index.html"
+    owner: apache
+    group: apache
+    mode: '0644'
+  vars:
+    site_title: "wiki.nexcore.local"
+  notify: Restart httpd
+
+- name: Deploy WordPress virtual host
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/httpd/conf.d/www.nexcore.local.conf
+    owner: root
+    group: root
+    mode: '0644'
+  vars:
+    server_name: "{{ wordpress_site.server_name }}"
+    document_root: "{{ wordpress_site.document_root }}"
+  notify: Restart httpd
+
+- name: Deploy MediaWiki virtual host
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/httpd/conf.d/wiki.nexcore.local.conf
+    owner: root
+    group: root
+    mode: '0644'
+  vars:
+    server_name: "{{ mediawiki_site.server_name }}"
+    document_root: "{{ mediawiki_site.document_root }}"
+  notify: Restart httpd
+
+- name: Validate Apache configuration
+  ansible.builtin.command:
+    cmd: apachectl configtest
+  changed_when: false
+
+- name: Configure SELinux context for web roots
+  ansible.builtin.command:
+    cmd: "semanage fcontext -a -t httpd_sys_content_t '{{ web_root }}(/.*)?'"
+  failed_when: false
+  changed_when: false
+
+- name: Restore SELinux contexts on web roots
+  ansible.builtin.command:
+    cmd: "restorecon -Rv {{ web_root }}"
+  changed_when: false
+
+- name: Ensure Apache service is running after configuration
+  ansible.builtin.service:
+    name: "{{ apache_service }}"
+    state: started
