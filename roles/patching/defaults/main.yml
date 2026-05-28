@@ -1,0 +1,10 @@
+---
+health_log_file: /var/log/nexcore-health.log
+
+health_script_path: /usr/local/bin/nexcore-health-check.sh
+
+health_check_hour: 3
+
+cleanup_hour: 4
+
+cleanup_weekday: 0

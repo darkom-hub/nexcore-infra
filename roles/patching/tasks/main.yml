@@ -1,0 +1,60 @@
+---
+- name: Ensure maintenance packages are installed
+  ansible.builtin.package:
+    name:
+      - dnf-plugins-core
+    state: present
+
+- name: Deploy health check script
+  ansible.builtin.template:
+    src: nexcore-health-check.sh.j2
+    dest: "{{ health_script_path }}"
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure health log file exists
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ health_log_file }}"
+    force: false
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Configure daily health check cron job
+  ansible.builtin.cron:
+    name: "NexCore daily health check"
+    minute: "0"
+    hour: "{{ health_check_hour }}"
+    job: "{{ health_script_path }}"
+
+- name: Configure weekly package cache cleanup
+  ansible.builtin.cron:
+    name: "NexCore weekly package cleanup"
+    minute: "0"
+    hour: "{{ cleanup_hour }}"
+    weekday: "{{ cleanup_weekday }}"
+    job: "dnf clean all"
+
+- name: Configure automatic package updates
+  ansible.builtin.cron:
+    name: "NexCore automatic package updates"
+    minute: "30"
+    hour: "2"
+    job: "dnf -y update"
+
+- name: Configure automatic reboot check
+  ansible.builtin.cron:
+    name: "NexCore automatic reboot if required"
+    minute: "0"
+    hour: "5"
+    job: "needs-restarting -r || reboot"
+
+- name: Deploy logrotate configuration for health log
+  ansible.builtin.template:
+    src: nexcore-health-logrotate.j2
+    dest: /etc/logrotate.d/nexcore-health
+    owner: root
+    group: root
+    mode: '0644'
