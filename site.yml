@@ -40,6 +40,9 @@
     - role: database
       tags: database
 
+    - role: backup
+      tags: backup
+
 - name: Configure DNS, web and email services
   hosts: servera
   become: true

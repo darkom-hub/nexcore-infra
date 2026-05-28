@@ -1,0 +1,10 @@
+---
+backup_directory: /var/backups/nexcore
+
+backup_script_path: /usr/local/bin/nexcore-db-backup.sh
+
+backup_hour: 1
+
+wordpress_database_name: wordpress
+
+mediawiki_database_name: mediawiki

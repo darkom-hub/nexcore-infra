@@ -13,3 +13,10 @@ smtp_port: 25
 mail_relay_networks:
   - 127.0.0.0/8
   - 172.25.250.0/24
+
+dovecot_packages:
+  - dovecot
+
+dovecot_service: dovecot
+
+imap_port: 143

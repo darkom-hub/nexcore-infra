@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BACKUP_DATE=$(date +%F)
+
+BACKUP_PATH="{{ backup_directory }}/${BACKUP_DATE}"
+
+mkdir -p "${BACKUP_PATH}"
+
+mysqldump {{ wordpress_database_name }} > "${BACKUP_PATH}/wordpress-${BACKUP_DATE}.sql"
+
+mysqldump {{ mediawiki_database_name }} > "${BACKUP_PATH}/mediawiki-${BACKUP_DATE}.sql"
