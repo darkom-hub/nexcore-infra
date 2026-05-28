@@ -1,0 +1,10 @@
+---
+rsyslog_package: rsyslog
+
+rsyslog_service: rsyslog
+
+remote_log_directory: /var/log/remote
+
+remote_log_file: /var/log/remote/serverb.log
+
+syslog_tcp_port: 514

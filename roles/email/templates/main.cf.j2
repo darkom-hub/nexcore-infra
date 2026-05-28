@@ -1,0 +1,28 @@
+myhostname = {{ mail_hostname }}
+
+mydomain = {{ mail_domain }}
+
+myorigin = $mydomain
+
+inet_interfaces = all
+
+inet_protocols = ipv4
+
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+
+mynetworks =
+{% for network in mail_relay_networks %}
+    {{ network }}
+{% endfor %}
+
+home_mailbox = Maildir/
+
+smtpd_banner = $myhostname ESMTP
+
+biff = no
+
+append_dot_mydomain = no
+
+readme_directory = no
+
+compatibility_level = 2

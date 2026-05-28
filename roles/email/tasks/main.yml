@@ -1,0 +1,45 @@
+---
+- name: Ensure Postfix packages are installed
+  ansible.builtin.package:
+    name: "{{ postfix_packages }}"
+    state: present
+
+- name: Deploy Postfix configuration
+  ansible.builtin.template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart postfix
+
+- name: Ensure Postfix service is enabled and running
+  ansible.builtin.service:
+    name: "{{ postfix_service }}"
+    enabled: true
+    state: started
+
+- name: Open SMTP service in firewalld
+  ansible.posix.firewalld:
+    service: smtp
+    permanent: true
+    state: enabled
+    immediate: true
+
+- name: Ensure local mailboxes exist
+  ansible.builtin.file:
+    path: "/home/{{ item.username }}/Maildir"
+    state: directory
+    owner: "{{ item.username }}"
+    group: "{{ item.groups[0] }}"
+    mode: '0700'
+  loop: "{{ managed_accounts }}"
+
+- name: Create Maildir subdirectories
+  ansible.builtin.file:
+    path: "/home/{{ item[0].username }}/Maildir/{{ item[1] }}"
+    state: directory
+    owner: "{{ item[0].username }}"
+    group: "{{ item[0].groups[0] }}"
+    mode: '0700'
+  loop: "{{ managed_accounts | product(['cur', 'new', 'tmp']) | list }}"

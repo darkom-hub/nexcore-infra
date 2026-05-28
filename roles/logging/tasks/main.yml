@@ -1,0 +1,48 @@
+---
+- name: Ensure rsyslog is installed
+  ansible.builtin.package:
+    name: "{{ rsyslog_package }}"
+    state: present
+
+- name: Ensure rsyslog service is enabled and running
+  ansible.builtin.service:
+    name: "{{ rsyslog_service }}"
+    enabled: true
+    state: started
+
+- name: Open syslog TCP port in firewalld
+  ansible.posix.firewalld:
+    port: "{{ syslog_tcp_port }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: inventory_hostname == "servera"
+
+- name: Ensure remote log directory exists
+  ansible.builtin.file:
+    path: "{{ remote_log_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: inventory_hostname == "servera"
+
+- name: Deploy rsyslog server configuration
+  ansible.builtin.template:
+    src: server.conf.j2
+    dest: /etc/rsyslog.d/remote-server.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: inventory_hostname == "servera"
+  notify: Restart rsyslog
+
+- name: Deploy rsyslog client configuration
+  ansible.builtin.template:
+    src: client.conf.j2
+    dest: /etc/rsyslog.d/remote-client.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: inventory_hostname == "serverb"
+  notify: Restart rsyslog
