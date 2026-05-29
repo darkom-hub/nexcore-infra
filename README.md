@@ -51,6 +51,14 @@ The entire infrastructure is deployed through a single idempotent `site.yml` pla
 
 ---
 
+## Prerequisites
+
+Install required Ansible collections:
+
+```bash
+ansible-galaxy collection install -r collections/requirements.yml
+```
+
 ## Deployment
 
 Run the complete infrastructure deployment:
