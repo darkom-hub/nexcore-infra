@@ -2,14 +2,16 @@
 apache_packages:
   - httpd
   - php
+  - php-common
   - php-mysqlnd
   - php-gd
+  - php-intl
   - php-xml
   - php-mbstring
-  - php-json
   - policycoreutils-python-utils
 
 apache_service: httpd
+php_fpm_service: php-fpm
 
 web_root: /var/www
 

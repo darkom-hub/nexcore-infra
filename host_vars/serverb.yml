@@ -1,4 +1,6 @@
 ---
+storage_disk: /dev/vdb
+
 server_role:
   - database
   - nfs

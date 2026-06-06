@@ -32,6 +32,7 @@
 - name: Ensure exportfs configuration is applied
   ansible.builtin.command:
     cmd: exportfs -ra
+  changed_when: false
   when: inventory_hostname == "serverb"
 
 - name: Ensure autofs package is installed

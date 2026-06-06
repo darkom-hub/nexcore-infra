@@ -3,6 +3,7 @@
   ansible.builtin.package:
     name:
       - dnf-plugins-core
+      - "{{ automatic_updates_package }}"
     state: present
 
 - name: Deploy health check script
@@ -12,6 +13,18 @@
     owner: root
     group: root
     mode: '0755'
+
+- name: Configure dnf-automatic
+  ansible.builtin.lineinfile:
+    path: /etc/dnf/automatic.conf
+    regexp: '^apply_updates ='
+    line: "apply_updates = {{ 'yes' if automatic_updates_apply else 'no' }}"
+
+- name: Enable dnf-automatic timer
+  ansible.builtin.service:
+    name: dnf-automatic.timer
+    enabled: true
+    state: started
 
 - name: Ensure health log file exists
   ansible.builtin.copy:
@@ -28,28 +41,6 @@
     minute: "0"
     hour: "{{ health_check_hour }}"
     job: "{{ health_script_path }}"
-
-- name: Configure weekly package cache cleanup
-  ansible.builtin.cron:
-    name: "NexCore weekly package cleanup"
-    minute: "0"
-    hour: "{{ cleanup_hour }}"
-    weekday: "{{ cleanup_weekday }}"
-    job: "dnf clean all"
-
-- name: Configure automatic package updates
-  ansible.builtin.cron:
-    name: "NexCore automatic package updates"
-    minute: "30"
-    hour: "2"
-    job: "dnf -y update"
-
-- name: Configure automatic reboot check
-  ansible.builtin.cron:
-    name: "NexCore automatic reboot if required"
-    minute: "0"
-    hour: "5"
-    job: "needs-restarting -r || reboot"
 
 - name: Deploy logrotate configuration for health log
   ansible.builtin.template:

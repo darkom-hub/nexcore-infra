@@ -10,6 +10,18 @@
     enabled: true
     state: started
 
+- name: Ensure PHP-FPM service is enabled and running
+  ansible.builtin.service:
+    name: "{{ php_fpm_service }}"
+    enabled: true
+    state: started
+
+- name: Allow Apache network connections through SELinux
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+
 - name: Open HTTP service in firewalld
   ansible.posix.firewalld:
     service: http
@@ -132,13 +144,21 @@
   args:
     creates: "{{ wordpress_site.document_root }}/wp-admin"
 
+- name: Deploy WordPress configuration
+  ansible.builtin.template:
+    src: wp-config.php.j2
+    dest: "{{ wordpress_site.document_root }}/wp-config.php"
+    owner: apache
+    group: apache
+    mode: '0644'
+
 - name: Set ownership on WordPress files
   ansible.builtin.file:
     path: "{{ wordpress_site.document_root }}"
     owner: apache
     group: apache
     recurse: true
-  notify: Restart httpd
+  changed_when: false
 
 - name: Copy MediaWiki application files
   ansible.builtin.shell:
@@ -152,7 +172,6 @@
     owner: apache
     group: apache
     recurse: true
-  notify: Restart httpd
 
 - name: Restore SELinux contexts on application files
   ansible.builtin.command:

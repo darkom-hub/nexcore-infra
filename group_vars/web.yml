@@ -1,9 +1,4 @@
 ---
-apache_packages:
-  - httpd
-
-apache_service: httpd
-
 websites:
   - name: www
     template: index.html.j2

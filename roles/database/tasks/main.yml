@@ -48,3 +48,39 @@
     cmd: >
       mysql -e "CREATE DATABASE {{ mediawiki_database.name }};"
   when: mediawiki_db_check.stdout != mediawiki_database.name
+
+- name: Check if wordpress user exists
+  ansible.builtin.shell: |
+    mysql -NBe "SELECT User FROM mysql.user WHERE User='{{ wordpress_database.user }}';"
+  register: wordpress_user_check
+  changed_when: false
+
+- name: Create wordpress user
+  ansible.builtin.command:
+    cmd: >
+      mysql -e "CREATE USER '{{ wordpress_database.user }}'@'%' IDENTIFIED BY '{{ wordpress_database.password }}';"
+  when: wordpress_user_check.stdout != wordpress_database.user
+
+- name: Grant wordpress privileges
+  ansible.builtin.command:
+    cmd: >
+      mysql -e "GRANT ALL PRIVILEGES ON {{ wordpress_database.name }}.* TO '{{ wordpress_database.user }}'@'%'; FLUSH PRIVILEGES;"
+  changed_when: false
+
+- name: Check if mediawiki user exists
+  ansible.builtin.shell: |
+    mysql -NBe "SELECT User FROM mysql.user WHERE User='{{ mediawiki_database.user }}';"
+  register: mediawiki_user_check
+  changed_when: false
+
+- name: Create mediawiki user
+  ansible.builtin.command:
+    cmd: >
+      mysql -e "CREATE USER '{{ mediawiki_database.user }}'@'%' IDENTIFIED BY '{{ mediawiki_database.password }}';"
+  when: mediawiki_user_check.stdout != mediawiki_database.user
+
+- name: Grant mediawiki privileges
+  ansible.builtin.command:
+    cmd: >
+      mysql -e "GRANT ALL PRIVILEGES ON {{ mediawiki_database.name }}.* TO '{{ mediawiki_database.user }}'@'%'; FLUSH PRIVILEGES;"
+  changed_when: false

@@ -1,4 +1,8 @@
 ---
+mail_relay_networks:
+  - 127.0.0.0/8
+  - 172.25.250.0/24
+
 project_domain: nexcore.local
 
 timezone: Europe/Zagreb
@@ -39,3 +43,15 @@ web_root: /var/www
 nfs_mount_point: /mnt/nexcore_share
 
 dns_forwarder: 8.8.8.8
+
+wordpress_database:
+  name: wordpress
+  user: wordpress
+  password: wordpresspass123
+  host: serverb
+
+mediawiki_database:
+  name: mediawiki
+  user: mediawiki
+  password: mediawikipass123
+  host: serverb
